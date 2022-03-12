@@ -1,39 +1,37 @@
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { RegistrationAPI } from './RegistrationApi';
+import { LoadingButton } from '@mui/lab';
+import { Alert } from '@mui/material';
+import { redirect } from '../../helpes';
 
-function Copyright(props: any) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
 
 const theme = createTheme();
 
 export const Registration = () => {
+  const [authError, setAuthError] = React.useState('')
+  const [isLoading, setIsLoading] = React.useState(false)
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const res = await RegistrationAPI({
+    setIsLoading(true)
+    await RegistrationAPI({
       email: data.get('email'),
       password: data.get('password'),
+    }).then(() => {
+      setAuthError('')
+      redirect('/mainsite')
     })
-    console.log(res);
+      .catch(() => {
+        setAuthError('Произошла ошибка сервера :(')
+      })
+    setIsLoading(false)
   };
 
   return (
@@ -74,14 +72,17 @@ export const Registration = () => {
               id="password"
               autoComplete="current-password"
             />
-            <Button
+            <LoadingButton
+              onClick={() => setAuthError('')}
+              loading={isLoading}
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
               Зарегистрироваться
-            </Button>
+            </LoadingButton>
+            {authError && <Alert severity="warning">{authError}</Alert>}
           </Box>
         </Box>
       </Container>
