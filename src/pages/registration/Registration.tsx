@@ -15,15 +15,12 @@ import { redirect } from '../../helpes';
 const theme = createTheme();
 
 export const Registration = () => {
-  const [authError, setAuthError] = React.useState('')
-  const [isLoading, setIsLoading] = React.useState(false)
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
+
+  const registrationHandler = async (password: FormDataEntryValue | null, email: FormDataEntryValue | null) => {
     setIsLoading(true)
     await RegistrationAPI({
-      email: data.get('email'),
-      password: data.get('password'),
+      email,
+      password,
     }).then(() => {
       setAuthError('')
       redirect('/mainsite')
@@ -32,6 +29,15 @@ export const Registration = () => {
         setAuthError('Произошла ошибка сервера :(')
       })
     setIsLoading(false)
+  }
+
+
+  const [authError, setAuthError] = React.useState('')
+  const [isLoading, setIsLoading] = React.useState(false)
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    registrationHandler(data.get('password'), data.get('email'))
   };
 
   return (
